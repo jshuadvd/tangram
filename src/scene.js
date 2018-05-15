@@ -1241,9 +1241,21 @@ export default class Scene {
         if ((this.render_count_changed || this.generation !== this.last_complete_generation) &&
             !this.tile_manager.isLoadingVisibleTiles() &&
             this.tile_manager.allVisibleTilesLabeled()) {
-            this.tile_manager.updateLabels();
+            this.tile_manager.updateLabels().then(result => {
+                // result is either {} (tasks completed) or something like:
+                // {labels: Array(1), containers: Array(1)} (not all tasks completed)
+
+                // check if there's something in the result
+                if (Object.keys(result).length === 0 && result.constructor === Object) {
+                    // if not, trigger view_complete
+                    this.trigger('view_complete');
+                } else {
+                    // how to wait for all tasks to finish??
+                    // hacky way to force a rebuild
+                    this.rebuild();
+                }
+            });
             this.last_complete_generation = this.generation;
-            this.trigger('view_complete');
         }
     }
 
