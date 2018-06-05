@@ -1243,7 +1243,7 @@ export default class Scene {
             this.tile_manager.allVisibleTilesLabeled()) {
             this.tile_manager.updateLabels().then(result => {
                 // console.log('result:', JSON.stringify(result));
-                console.log('result:', result);
+                console.log('result:', result, '\nhmm');
                 // result is either {} (tasks completed) or something like:
                 // {labels: Array(1), containers: Array(1)} (not all tasks completed)
 
