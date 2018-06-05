@@ -181,6 +181,7 @@ export default class TileManager {
         // else {
         //     log('debug', `Skip label layout due to on-going layout (zoom ${this.view.zoom.toFixed(2)}, tiles ${JSON.stringify(this.collision.tiles.map(t => t.key))}, mesh counts ${JSON.stringify(this.collision.style_counts)}, pending label mesh counts ${JSON.stringify(this.collision.pending_label_style_counts)})`);
         // }
+        if (Task.process(this.collision.task) === true) {}
         return this.collision.task.promise;
     }
 
