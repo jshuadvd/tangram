@@ -18,14 +18,22 @@ const Task = {
         task.promise = promise;
 
         task.total_elapsed = 0;
+        console.log('>> PROCESSING total_elapsed:', task.total_elapsed)
         task.stats = { calls: 0 };
         this.queue.push(task);
 
         // Run task immediately if under total frame time
-        this.start_time = this.start_time || performance.now(); // start frame timer if necessary
-        this.elapsed = performance.now() - this.start_time;
-        if (this.elapsed < Task.max_time) {
+        task.start_time = task.start_time || performance.now(); // start frame timer if necessary
+        console.log('start?', task.start_time);
+        console.log('now?', performance.now());
+        task.elapsed = performance.now() - task.start_time;
+        console.log('>> PROCESSING task.elapsed:', task.elapsed)
+        
+        if (task.elapsed < Task.max_time) {
+            console.log('processing', task.id, task);
             this.process(task);
+        } else {
+            console.log('too long:', task.elapsed, 'task id:', task.id, 'postponing', task)
         }
 
         return task.promise;
@@ -48,7 +56,7 @@ const Task = {
 
         // Skip task if it's currently paused
         if (task.pause) {
-            // log('debug', `*** PAUSING task id ${task.id}, ${task.type} (${task.pause})`);
+            // console.log('debug', `*** PAUSING task id ${task.id}, ${task.type} (${task.pause})`);
             task.pause--;
             return true;
         }
@@ -71,6 +79,7 @@ const Task = {
                     task.pause = (task.elapsed > task.max_time) ? task.pause_factor : 0;
                 }
                 task.total_elapsed += task.elapsed;
+                console.log('>> task.elapsed:', task.elapsed, 'total_elapsed:', task.total_elapsed)
             }
 
             // Check total frame time
@@ -86,9 +95,12 @@ const Task = {
     finish (task, value) {
         task.elapsed = performance.now() - task.start_time;
         task.total_elapsed += task.elapsed;
-        // log('debug', `task type ${task.type}, tile ${task.id}, finish after ${task.stats.calls} calls, ${task.total_elapsed.toFixed(2)} elapsed`);
+        console.log('>> PROCESSING total_elapsed:', task.total_elapsed)
+        console.log('debug', `task type ${task.type}, tile ${task.id}, finish after ${task.stats.calls} calls, ${task.total_elapsed.toFixed(2)} elapsed`);
+        console.log('task.elapsed:', task.elapsed, 'task.total_elapsed:', task.total_elapsed)
         this.remove(task);
         task.resolve(value);
+        console.log('FINISHING', task)
         return task.promise;
     },
 
@@ -99,6 +111,7 @@ const Task = {
             val = task.cancel(task); // optional cancel function
         }
 
+        console.log('CANCELING', task)
         task.resolve(val || {}); // resolve with result of cancel function, or empty object
     },
 

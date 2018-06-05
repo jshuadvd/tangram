@@ -124,8 +124,9 @@ export default class TileManager {
     }
 
     updateLabels () {
+        console.log('update labels')
         if (this.scene.building && !this.scene.building.initial) {
-            // log('debug', `Skip label layout due to on-going scene rebuild`);
+            console.log('debug', `Skip label layout due to on-going scene rebuild`);
             return Promise.resolve({});
         }
 
@@ -135,6 +136,7 @@ export default class TileManager {
             .filter(t => t.built);
 
         if (tiles.length === 0) {
+            console.log('no tiles, cancelling')
             return Promise.resolve({});
         }
 
@@ -143,20 +145,35 @@ export default class TileManager {
         tiles.sort((a, b) => a.build_id < b.build_id ? -1 : (a.build_id > b.build_id ? 1 : 0));
 
         // check if tile set has changed (in ways that affect collision)
-        if (roundPrecision(this.view.zoom, this.collision.zoom_steps) === this.collision.zoom &&
+        // if not, bail so that the existing collision task can carry on
+        // if so, carry on and start a new collision task
+            // debugger
+            // roundPrecision rounds down to some division of whole numbers eg (x, 3) rounds x to nearest third
+            // this.collision.zoom is set during the creation of the collision task
+            // if they are the same, it means the map view is still in the same place that the original collision was triggered, which means that you don't need to start a new collision task
+            if (roundPrecision(this.view.zoom, this.collision.zoom_steps) === this.collision.zoom &&
             tiles.every(t => {
+                console.log('t.pendingLabelStyleCount():', t.pendingLabelStyleCount())
+                // check every tile to make sure all of these cases are true:
                 let i = this.collision.tiles.indexOf(t);
+                // the current tile is in the list of tiles to be processed for collision
                 return i > -1 &&
+                    // the current tile's collision generation matches the current collision's generation
                     this.collision.generations[i] === t.generation &&
+                    // the number of styles hasn't changed
                     this.collision.style_counts[i] === Object.keys(t.meshes).length &&
+                    // the number of pending styles with labels hasn't changed
                     this.collision.pending_label_style_counts[i] === t.pendingLabelStyleCount();
             })) {
-            // log('debug', `Skip label layout due to same tile/meshes (zoom ${this.view.zoom.toFixed(2)}, tiles ${JSON.stringify(this.collision.tiles.map(t => t.key))}, mesh counts ${JSON.stringify(this.collision.style_counts)}, pending label mesh counts ${JSON.stringify(this.collision.pending_label_style_counts)})`);
+            console.log('debug', `Skip label layout due to same tile/meshes (zoom ${this.view.zoom.toFixed(2)}, tiles ${JSON.stringify(this.collision.tiles.map(t => t.key))}, mesh counts ${JSON.stringify(this.collision.style_counts)}, pending label mesh counts ${JSON.stringify(this.collision.pending_label_style_counts)})`);
+            console.log('skipping new label layout, nothing has changed, this.collision.task?', this.collision.task);
             return Promise.resolve({});
         }
 
-        // update collision if not already updating
+        // update collision if not already updating -
+        // if a collision task doesn't exist, create one
         if (!this.collision.task) {
+            console.log('making new collision task');
             this.collision.tiles = tiles;
             this.collision.generations = tiles.map(t => t.generation);
             this.collision.style_counts = tiles.map(t => Object.keys(t.meshes).length);
@@ -164,6 +181,7 @@ export default class TileManager {
             this.collision.zoom = roundPrecision(this.view.zoom, this.collision.zoom_steps);
             // log('debug', `Update label collisions (zoom ${this.collision.zoom}, ${JSON.stringify(this.collision.tiles.map(t => t.key))}, mesh counts ${JSON.stringify(this.collision.style_counts)}, pending label mesh counts ${JSON.stringify(this.collision.pending_label_style_counts)})`);
 
+            // make a new collision task
             this.collision.task = {
                 type: 'tileManagerUpdateLabels',
                 run: (task) => {
@@ -178,9 +196,12 @@ export default class TileManager {
             };
             Task.add(this.collision.task);
         }
-        // else {
-        //     log('debug', `Skip label layout due to on-going layout (zoom ${this.view.zoom.toFixed(2)}, tiles ${JSON.stringify(this.collision.tiles.map(t => t.key))}, mesh counts ${JSON.stringify(this.collision.style_counts)}, pending label mesh counts ${JSON.stringify(this.collision.pending_label_style_counts)})`);
+        else {
+            console.log('skipping label layout, this.collision.task exists:', this.collision.task)
+
         // }
+        //     log('debug', `Skip label layout due to on-going layout (zoom ${this.view.zoom.toFixed(2)}, tiles ${JSON.stringify(this.collision.tiles.map(t => t.key))}, mesh counts ${JSON.stringify(this.collision.style_counts)}, pending label mesh counts ${JSON.stringify(this.collision.pending_label_style_counts)})`);
+        }
         return this.collision.task.promise;
     }
 
