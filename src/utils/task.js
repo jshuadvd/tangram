@@ -17,21 +17,21 @@ const Task = {
         });
         task.promise = promise;
 
-        task.elapsed = 0;
+        // task.elapsed = 0;
         task.total_elapsed = 0;
-        console.log('ADDING', task.total_elapsed)
+        console.log('ADDING task', task.id)
         task.stats = { calls: 0 };
         this.queue.push(task);
 
         // Run task immediately if under total frame time
         this.start_time = this.start_time || performance.now(); // start frame timer if necessary
         this.elapsed = performance.now() - this.start_time;
-        
+
         if (this.elapsed < Task.max_time) {
-            console.log('PROCESSING', task.id, task);
+            console.log('PROCESSING task', task.id, task);
             this.process(task);
         } else {
-            console.log('POSTPONING:', task.id)
+            console.log('POSTPONING task', task.id)
         }
 
         return task.promise;
@@ -54,7 +54,7 @@ const Task = {
 
         // Skip task if it's currently paused
         if (task.pause) {
-            // console.log('debug', `*** PAUSING task id ${task.id}, ${task.type} (${task.pause})`);
+            // log('debug', `*** PAUSING task id ${task.id}, ${task.type} (${task.pause})`);
             task.pause--;
             return true;
         }
@@ -65,32 +65,27 @@ const Task = {
     },
 
     processAll () {
-        // console.log('! processAll')
         this.start_time = this.start_time || performance.now(); // start frame timer if necessary
         for (let i=0; i < this.queue.length; i++) {
-            let task = this.queue[i];
-            console.log('PROCESSING ALL:', i, this.process(task), 'true?', this.process(task)=== true)
             // Exceeded either total task time, or total frame time
+            let task = this.queue[i];
+
+            console.log('PROCESSING task queue index', i)
             if (this.process(task) !== true) {
-                console.log('task not completed')
+                console.log('task', task.id, 'not completed')
                 // If the task didn't complete, pause it for a task-specific number of frames
                 // (can be disabled by setting pause_factor to 0)
                 if (!task.pause) {
-                    // console.log('!task.pause')
                     task.pause = (task.elapsed > task.max_time) ? task.pause_factor : 0;
-                    console.log('pausing?', task.pause)
-                } else {
-                    console.log('task paused')
                 }
                 task.total_elapsed += task.elapsed;
-                console.log('> task.elapsed:', task.elapsed, 'total_elapsed:', task.total_elapsed)
+                console.log('task', task.id, 'task.elapsed:', task.elapsed, 'total_elapsed:', task.total_elapsed)
             } else {
-                console.log('!!  task completed!  !!')
+                console.log('COMPLETED task', task.id)
             }
 
             // Check total frame time
             this.elapsed = performance.now() - this.start_time;
-            console.log('>> task.elapsed:', task.elapsed, 'total_elapsed:', task.total_elapsed)
             if (this.elapsed >= Task.max_time) {
                 console.log('this.elapsed', this.elapsed, '>= Task.max_time, resetting and breaking')
                 this.start_time = null; // reset frame timer
@@ -103,10 +98,10 @@ const Task = {
     finish (task, value) {
         task.elapsed = performance.now() - task.start_time;
         task.total_elapsed += task.elapsed;
-        // console.log('>> FINISH total_elapsed:', task.total_elapsed)
-        console.log('FINISHING', task)
+        // log('debug', `task type ${task.type}, tile ${task.id}, finish after ${task.stats.calls} calls, ${task.total_elapsed.toFixed(2)} elapsed`);
         console.log('debug', `task type ${task.type}, tile ${task.id}, finish after ${task.stats.calls} calls, ${task.total_elapsed.toFixed(2)} elapsed`);
-        // console.log('task.elapsed:', task.elapsed, 'task.total_elapsed:', task.total_elapsed)
+        console.log('FINISH', task.id)
+
         this.remove(task);
         task.resolve(value);
         return task.promise;
@@ -119,7 +114,6 @@ const Task = {
             val = task.cancel(task); // optional cancel function
         }
 
-        console.log('CANCELING', task)
         task.resolve(val || {}); // resolve with result of cancel function, or empty object
     },
 
