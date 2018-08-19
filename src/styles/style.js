@@ -21,14 +21,16 @@ const shaderSrc_rasters = fs.readFileSync(__dirname + '/../gl/shaders/rasters.gl
 // Base class
 
 export var Style = {
-    init ({ generation, styles, sources = {}, introspection } = {}) {
+    init ({ generation, styles, sources = {}, selection_enabled = true, introspection } = {}) {
         this.setGeneration(generation);
         this.styles = styles;                       // styles for scene
         this.sources = sources;                     // data sources for scene
         this.defines = (this.hasOwnProperty('defines') && this.defines) || {}; // #defines to be injected into the shaders
         this.shaders = (this.hasOwnProperty('shaders') && this.shaders) || {}; // shader customization (uniforms, defines, blocks, etc.)
         this.introspection = introspection || false;
-        this.selection = this.selection || this.introspection || false;   // flag indicating if this style supports feature selection
+        this.selection =                            // flag indicating if this style supports feature selection
+            selection_enabled &&
+            (this.supports_selection || this.introspection || false);
         this.compile_setup = false;                 // one-time setup steps for program compilation
         this.program = null;                        // GL program reference (for main render pass)
         this.selection_program = null;              // GL program reference for feature selection render pass

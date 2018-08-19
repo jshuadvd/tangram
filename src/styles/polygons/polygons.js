@@ -18,7 +18,7 @@ Object.assign(Polygons, {
     built_in: true,
     vertex_shader_src: shaderSrc_polygonsVertex,
     fragment_shader_src: shaderSrc_polygonsFragment,
-    selection: true, // enable feature selection
+    supports_selection: true, // enable feature selection
 
     init() {
         Style.init.apply(this, arguments);

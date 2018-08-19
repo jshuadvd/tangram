@@ -47,7 +47,7 @@ Object.assign(Points, {
     built_in: true,
     vertex_shader_src: shaderSrc_pointsVertex,
     fragment_shader_src: shaderSrc_pointsFragment,
-    selection: true,  // enable feature selection
+    supports_selection: true,  // enable feature selection
     collision: true,  // style includes a collision pass
     blend: 'overlay', // overlays drawn on top of all other styles, with blending
 

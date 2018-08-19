@@ -67,11 +67,12 @@ Object.assign(self, {
     },
 
     // Starts a config refresh
-    updateConfig ({ config, generation, introspection }, debug) {
+    updateConfig ({ config, generation, selection_enabled, introspection }, debug) {
         config = JSON.parse(config);
         mergeDebugSettings(debug);
 
         self.generation = generation;
+        self.selection_enabled = selection_enabled;
         self.introspection = introspection;
 
         // Data block functions are not context wrapped like the rest of the style functions are
@@ -95,6 +96,7 @@ Object.assign(self, {
             generation: self.generation,
             styles: self.styles,
             sources: self.sources,
+            selection_enabled: self.selection_enabled,
             introspection: self.introspection
         });
 
@@ -108,6 +110,8 @@ Object.assign(self, {
         self.configuring = self.syncing_textures.then(() => {
             log('debug', `updated config`);
         });
+
+        return self.configuring;
     },
 
     // Create data sources and clear tile cache if necessary

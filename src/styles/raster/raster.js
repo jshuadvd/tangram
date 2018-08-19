@@ -16,7 +16,7 @@ Object.assign(RasterStyle, {
 
         this.super.init.apply(this, arguments);
 
-        this.selection = false; // raster styles can't support feature selection
+        this.supports_selection = false; // raster styles can't support feature selection
     },
 
     _preprocess (draw) {

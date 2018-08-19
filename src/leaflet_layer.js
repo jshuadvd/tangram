@@ -75,7 +75,8 @@ function extendLeaflet(options) {
                         wrapView: (this.options.noWrap === true ? false : true),
                         highDensityDisplay: this.options.highDensityDisplay,
                         logLevel: this.options.logLevel,
-                        introspection: this.options.introspection,
+                        selection: this.options.selection, // turn feature selection on/off for entire scene
+                        introspection: this.options.introspection, // turn scene introspection on/off
                         webGLContextOptions: this.options.webGLContextOptions, // override/supplement WebGL context options
                         disableRenderLoop: this.options.disableRenderLoop // app must call scene.update() per frame
                     });
