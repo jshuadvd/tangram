@@ -455,9 +455,14 @@ Object.assign(Lines, {
                 { name: 'a_offset', size: 2, type: gl.SHORT, normalized: false, static: (variant.offset ? null : [0, 0]) },
                 { name: 'a_scaling', size: 2, type: gl.SHORT, normalized: false },
                 { name: 'a_texcoord', size: 2, type: gl.UNSIGNED_SHORT, normalized: true, static: (variant.texcoords ? null : [0, 0]) },
-                { name: 'a_color', size: 4, type: gl.UNSIGNED_BYTE, normalized: true },
-                { name: 'a_selection_color', size: 4, type: gl.UNSIGNED_BYTE, normalized: true }
+                { name: 'a_color', size: 4, type: gl.UNSIGNED_BYTE, normalized: true }
             ];
+
+            // Add vertex attribute for selection
+            if (this.selection) {
+                attribs.push({ name: 'a_selection_color', size: 4, type: gl.UNSIGNED_BYTE, normalized: true });
+            }
+
             Lines.vertex_layouts[variant.key] = new VertexLayout(attribs);
         }
         return Lines.vertex_layouts[variant.key];

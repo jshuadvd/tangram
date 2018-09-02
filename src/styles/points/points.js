@@ -62,9 +62,13 @@ Object.assign(Points, {
             { name: 'a_offset', size: 2, type: gl.SHORT, normalized: false },
             { name: 'a_color', size: 4, type: gl.UNSIGNED_BYTE, normalized: true },
             { name: 'a_outline_color', size: 4, type: gl.UNSIGNED_BYTE, normalized: true, static: [0, 0, 0, 0] },
-            { name: 'a_outline_edge', size: 1, type: gl.FLOAT, normalized: false, static: 0 },
-            { name: 'a_selection_color', size: 4, type: gl.UNSIGNED_BYTE, normalized: true }
+            { name: 'a_outline_edge', size: 1, type: gl.FLOAT, normalized: false, static: 0 }
         ];
+
+        // Add vertex attribute for selection
+        if (this.selection) {
+            attribs.push({ name: 'a_selection_color', size: 4, type: gl.UNSIGNED_BYTE, normalized: true });
+        }
 
         this.vertex_layout = new VertexLayout(attribs);
 

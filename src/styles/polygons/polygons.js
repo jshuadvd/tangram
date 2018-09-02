@@ -24,12 +24,16 @@ Object.assign(Polygons, {
         Style.init.apply(this, arguments);
 
         // Basic attributes, others can be added (see texture UVs below)
-        var attribs = [
+        let attribs = [
             { name: 'a_position', size: 4, type: gl.SHORT, normalized: false },
             { name: 'a_normal', size: 3, type: gl.BYTE, normalized: true }, // gets padded to 4-bytes
-            { name: 'a_color', size: 4, type: gl.UNSIGNED_BYTE, normalized: true },
-            { name: 'a_selection_color', size: 4, type: gl.UNSIGNED_BYTE, normalized: true }
+            { name: 'a_color', size: 4, type: gl.UNSIGNED_BYTE, normalized: true }
         ];
+
+        // Add vertex attribute for selection
+        if (this.selection) {
+            attribs.push({ name: 'a_selection_color', size: 4, type: gl.UNSIGNED_BYTE, normalized: true });
+        }
 
         // Tell the shader we have a normal and order attributes
         this.defines.TANGRAM_NORMAL_ATTRIBUTE = true;
