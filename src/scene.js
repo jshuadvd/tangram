@@ -1375,6 +1375,7 @@ export default class Scene {
                 return counts;
             },
 
+            // Return geometry counts of visible tiles, grouped by base style name
             geometryCountByBaseStyle () {
                 let style_counts = scene.debug.geometryCountByStyle();
                 let counts = {};
@@ -1386,6 +1387,13 @@ export default class Scene {
                 return counts;
             },
 
+            // Return sum of all geometry counts for visible tiles
+            geometryCountTotal () {
+                const styles = scene.debug.geometryCountByStyle();
+                return Object.keys(styles).reduce((p, c) => styles[c] + p, 0);
+            },
+
+            // Return geometry GL buffer sizes for visible tiles, grouped by style name
             geometrySizeByStyle () {
                 let sizes = {};
                 scene.tile_manager.getRenderableTiles().forEach(tile => {
@@ -1399,6 +1407,7 @@ export default class Scene {
                 return sizes;
             },
 
+            // Return geometry GL buffer sizes for visible tiles, grouped by base style name
             geometrySizeByBaseStyle () {
                 let style_sizes = scene.debug.geometrySizeByStyle();
                 let sizes = {};
@@ -1408,6 +1417,12 @@ export default class Scene {
                     sizes[base] += style_sizes[style];
                 }
                 return sizes;
+            },
+
+            // Return sum of all geometry GL buffer sizes for visible tiles
+            geometrySizeTotal () {
+                const styles = scene.debug.geometrySizeByStyle();
+                return Object.keys(styles).reduce((p, c) => styles[c] + p, 0);
             },
 
             layerStats () {
