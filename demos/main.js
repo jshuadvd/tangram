@@ -14,6 +14,7 @@
             hover: onHover,     // hover event (defined below)
             click: onClick      // click event (defined below)
         },
+        // selection: false,    // optionally disables all feature selection
         // debug: {
         //     layer_stats: true // enable to collect detailed layer stats, access w/`scene.debug.layerStats()`
         // },
